@@ -51,40 +51,104 @@ protected:
     std::vector<std::string> _shape;
 
     /**
-     *
+     * @brief fills the fractal according to its type.
      */
     void fillCorrect();
+
+    /**
+     * @brief fills the string vector to the correct size.
+     */
     void fill();
-    virtual bool isFilled(int x,int y) const = 0;
+
+    /**
+     * @brief Checks if a given char in the vector string should be filled.
+     * @param x number of char in the string.
+     * @param y number of string in vector.
+     * @return true if given location should be filled, false otherwise.
+     */
+    virtual bool isFilled(int x, int y) const = 0;
 };
 
-class Carpet: public Fractal
+/**
+ * @brief Sierpenski Carpet fractal object for fractal project.
+ */
+class Carpet : public Fractal
 {
 public:
+    /**
+     * @brief Creates new carpet fractal.
+     * @param dim the dimension of new fractal.
+     */
     Carpet(int dim);
 
+    /**
+     * @brief Checks if a given char in the vector string should be filled.
+     * @param x number of char in the string.
+     * @param y number of string in vector.
+     * @return true if given location should be filled, false otherwise.
+     */
     bool isFilled(int x, int y) const override;
 };
 
-class Triangle: public Fractal
+
+/**
+ * @brief Sierpenski triangle fractal object for fractal project.
+ */
+class Triangle : public Fractal
 {
 public:
+
+    /**
+     * @brief Creates new triangle fractal.
+     * @param dim the dimension of new fractal.
+     */
     Triangle(int dim);
 
+    /**
+     * @brief Checks if a given char in the vector string should be filled.
+     * @param x number of char in the string.
+     * @param y number of string in vector.
+     * @return true if given location should be filled, false otherwise.
+     */
     bool isFilled(int x, int y) const override;
 };
 
-class Vicsek: public Fractal
+/**
+ * @brief Vicsek fractal object for fractal project.
+ */
+class Vicsek : public Fractal
 {
 public:
+
+    /**
+     * @brief Creates new vicsek fractal.
+     * @param dim the dimension of new fractal.
+     */
     Vicsek(int dim);
 
+    /**
+     * @brief Checks if a given char in the vector string should be filled.
+     * @param x number of char in the string.
+     * @param y number of string in vector.
+     * @return true if given location should be filled, false otherwise.
+     */
     bool isFilled(int x, int y) const override;
 };
 
+/**
+ * Fractal factory object creates fractals.
+ */
 class FractalFactory
 {
 public:
-    static Fractal* createFractal(int type, int dim);
+
+    /**
+     * @brief Creates a new fractal object.
+     * @param type number specifying which fractal to create.
+     * @param dim number specifying what is the dimension of the new fractal.
+     * @return
+     */
+    static Fractal *createFractal(int type, int dim);
 };
+
 #endif //CPP_EX2_FRACTAL_H
