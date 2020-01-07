@@ -13,76 +13,72 @@
 
 typedef boost::tokenizer<boost::char_separator<char>> tokenizer;
 
-void exitFailure(const std::string &msg)
+int checkString(const std::string &basicString, int maxValue)
 {
-    std::cerr << msg << std::endl;
-    exit(EXIT_FAILURE);
-}
-
-int checkString(const std::string &basicString, int maxValue, std::ifstream &fileStream)
-{
-    switch(basicString.length())
+    switch (basicString.length())
     {
         case 2:
         {
-            if(!isspace(basicString[1]))
+            if (!isspace(basicString[1]))
             {
-                goto error_label;
+                return -1;
             }
         }
         case 1:
         {
             char c = basicString[0];
             int value = c - '0';
-            if(isdigit(c) && value <= maxValue && value > 0)
+            if (isdigit(c) && value <= maxValue && value > 0)
             {
                 return value;
             }
         }
         default:
-        error_label:
         {
-            fileStream.close();
-            exitFailure(INVALID_INPUT);
+            return -1;
         }
     }
 }
 
-int main(int argc, char** argv){
-    if(argc!=2)
+int main(int argc, char **argv)
+{
+    if (argc != 2)
     {
-        exitFailure("Usage: FractalDrawer <file path>");
+        std::cerr << "Usage: FractalDrawer <file path>" << std::endl;
+        exit(EXIT_FAILURE);
     }
     std::ifstream fileStream(argv[1]);
     std::string ext = boost::filesystem::extension(argv[1]);
-    if(!fileStream.is_open())
+    if (!fileStream.is_open())
     {
-        exitFailure(INVALID_INPUT);
+        std::cerr << INVALID_INPUT << std::endl;
+        exit(EXIT_FAILURE);
     }
-    if(ext != ".csv")
+    if (ext != ".csv")
     {
         fileStream.close();
-        exitFailure(INVALID_INPUT);
+        std::cerr << INVALID_INPUT << std::endl;
+        exit(EXIT_FAILURE);
     }
     boost::char_separator<char> sep{","};
     std::string line;
-    std::vector<Fractal*> results;
-    while(std::getline(fileStream, line))
+    std::vector<Fractal *> results;
+    while (std::getline(fileStream, line))
     {
         tokenizer tok{line, sep};
         int counter = 0, fractalType = 0, fractalDimension = 0;
-        for(auto current = tok.begin(); current != tok.end();current++, counter++)
+        for (auto current = tok.begin(); current != tok.end(); current++, counter++)
         {
-            switch(counter)
+            switch (counter)
             {
                 case 0:
                 {
-                    fractalType = checkString(*current, 3, fileStream);
+                    fractalType = checkString(*current, 3);
                     break;
                 }
                 case 1:
                 {
-                    fractalDimension = checkString(*current, 6, fileStream);
+                    fractalDimension = checkString(*current, 6);
                     break;
                 }
                 default:
@@ -91,22 +87,31 @@ int main(int argc, char** argv){
                 }
             }
         }
-        if(counter != 2)
+        if (counter != 2 || fractalType == -1 || fractalDimension == -1)
         {
             fileStream.close();
+            for (auto &fractal: results)
+            {
+                delete (fractal);
+            }
             results.clear();
-            std::vector<Fractal*>().swap(results);
-            exitFailure(INVALID_INPUT);
+            std::vector<Fractal *>().swap(results);
+            std::cerr << INVALID_INPUT << std::endl;
+            exit(EXIT_FAILURE);
         }
-        results.insert(results.begin(), FractalFactory::createFractal(fractalType, fractalDimension));
+        results.insert(results.begin(),
+                       FractalFactory::createFractal(fractalType, fractalDimension));
     }
     fileStream.close();
-    for(const Fractal* fractal: results)
+    for (const Fractal *fractal: results)
     {
         fractal->draw();
-        delete(fractal);
+    }
+    for (auto &fractal: results)
+    {
+        delete (fractal);
     }
     results.clear();
-    std::vector<Fractal*>().swap(results);
+    std::vector<Fractal *>().swap(results);
     exit(EXIT_SUCCESS);
 }
